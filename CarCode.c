@@ -35,18 +35,20 @@ int main(){
 	int i=0;
 	uint16_t motor_period = 48000000/10000;
 	uint16_t servo_period = 3000000/50;
-	DisableInterrupts();
+	//DisableInterrupts();
 	uart0_init();
-	uart0_put("Uart Initialized");
+	uart0_put("Uart Initialized\r\n");
 	//init leds for debugging etc
 	LED1_Init();
 	LED2_Init();
 	INIT_Camera();
-	//init motors
+//	//init motors
 	init_motors(motor_period);
-	//init servos
+//	//init servos
 	init_servos(servo_period);
-	EnableInterrupts();
+	//EnableInterrupts();
+	TIMER_A2_PWM_DutyCycle(0.1,1);
+	delay(100);
 	//init switches for starting
 	
 	//
@@ -54,7 +56,7 @@ int main(){
 	while(TRUE){
 			//Read trace
 		for (i=0; i < 129; i++){
-			sprintf(str, "%d", line[i]);
+			sprintf(str, "%d\r\n", line[i]);
 			uart0_put(str);
 		}
 			//Normalize trace to make it smooth

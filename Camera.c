@@ -60,14 +60,14 @@ static char str[100];
 //
 //
 /////////////////////////////////////////////////////
-void myDelay(void)
-{
-	volatile int j = 0;
-	for (j = 0; j < 800000; j++)
-	{
-		;
-	}
-}
+//void myDelay(void)
+//{
+//	volatile int j = 0;
+//	for (j = 0; j < 800000; j++)
+//	{
+//		;
+//	}
+//}
 /////////////////////////////////////////////////////
 //
 // INIT_Camera function
