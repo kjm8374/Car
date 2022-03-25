@@ -91,7 +91,7 @@ void i2c0_Init(int listenerAddress)
 	// MASTER mode  
 	// I2C mode
 	//EUSCI_B0->CTLW0|=UCMST|UCMODE_3|UCSYNC;
-	EUSCI_B0->CTLW0|=EUSCI_B_CTLW0_MST|EUSCI_B_CTLW0_MODE_3|EUSCI_B_CTLW0_SYNC 
+	EUSCI_B0->CTLW0|=EUSCI_B_CTLW0_MST|EUSCI_B_CTLW0_MODE_3|EUSCI_B_CTLW0_SYNC; 
 	// SMCLK mode 
 	// don/t acknowledge
 	// MASTER 
@@ -103,8 +103,8 @@ void i2c0_Init(int listenerAddress)
 	// stay RESET
 	// 
  	//EUSCI_B0->CTLW0
+	//EUSCI_B0->CTLW0|=EUSCI_B_CTLW0_UCSSEL_3|EUSCI_B_CTLW0_TR ;
 	EUSCI_B0->CTLW0|=EUSCI_B_CTLW0_UCSSEL_3|EUSCI_B_CTLW0_TR ;
-
 	// set clock: 400 KHz
 	// EUSCI_B0->BRW 
 	

@@ -18,12 +18,12 @@
  * 
  * del - The delay in milliseconds
  */
-void delay(int del){
-	volatile int i;
-	for (i=0; i<del*50000; i++){
-		;// Do nothing
-	}
-}
+//void delay(int del){
+//	volatile int i;
+//	for (i=0; i<del*50000; i++){
+//		;// Do nothing
+//	}
+//}
 
 void reset_PWM(){
 	
