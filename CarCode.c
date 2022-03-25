@@ -32,10 +32,12 @@ extern uint16_t line[128];
 int main(){
 	//init camera
 	char str[200];
+	int i=0;
 	uint16_t motor_period = 48000000/10000;
 	uint16_t servo_period = 3000000/50;
 	DisableInterrupts();
 	uart0_init();
+	uart0_put("Uart Initialized");
 	//init leds for debugging etc
 	LED1_Init();
 	LED2_Init();
@@ -44,13 +46,14 @@ int main(){
 	init_motors(motor_period);
 	//init servos
 	init_servos(servo_period);
-
+	EnableInterrupts();
 	//init switches for starting
+	
 	//
 	
 	while(TRUE){
 			//Read trace
-		for (int i=0; i < 129; i++){
+		for (i=0; i < 129; i++){
 			sprintf(str, "%d", line[i]);
 			uart0_put(str);
 		}
