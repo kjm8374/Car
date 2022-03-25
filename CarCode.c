@@ -25,11 +25,13 @@
 #include "TimerA.h"
 #include "Camera.h"
 #include "uart.h"
+#include <stdio.h>
 
 extern uint16_t line[128];
 
 int main(){
 	//init camera
+	char str[200];
 	uint16_t motor_period = 48000000/10000;
 	uint16_t servo_period = 3000000/50;
 	DisableInterrupts();
@@ -48,6 +50,10 @@ int main(){
 	
 	while(TRUE){
 			//Read trace
+		for (int i=0; i < 129; i++){
+			sprintf(str, "%d", line[i]);
+			uart0_put(str);
+		}
 			//Normalize trace to make it smooth
 			//Find left and right edge
 			//Solve for DR and DL
