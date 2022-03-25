@@ -12,6 +12,7 @@
 #include "CortexM.h"
 #include "SysTickTimer.h"
 #include "ControlPins.h"
+#include "DCMotor.h"
 #include "led.h"
 #include "ADC14.h"
 #include "uart.h"
@@ -22,16 +23,26 @@
 #include "SysTickTimer.h"
 #include "Timer32.h"
 #include "TimerA.h"
+#include "Camera.h"
 #include "uart.h"
 
+extern uint16_t line[128];
 
 int main(){
-	//init camer
+	//init camera
+	uint16_t motor_period = 48000000/10000;
+	uint16_t servo_period = 3000000/50;
+	DisableInterrupts();
+	uart0_init();
+	//init leds for debugging etc
+	LED1_Init();
+	LED2_Init();
 	INIT_Camera();
 	//init motors
-	
+	init_motors(motor_period);
 	//init servos
-	//init leds for debugging etc
+	init_servos(servo_period);
+
 	//init switches for starting
 	//
 	

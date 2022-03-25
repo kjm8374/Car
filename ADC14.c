@@ -124,9 +124,6 @@ void ADC0_InitSWTriggerCh6(void)
 	P4->SEL1 |= BIT7;                  
   P4->DIR &= ~BIT7;
 	P4->REN &= ~BIT7;
-	PMAPKEYID = 0x02D52;
-	PMAPCTL |= 0x0002;
-	P4MAP->PMAP_REGISTER7 = PM_ANALOG;
 	//bit 1 is 0x0002
   ADC14->CTL0 |= BIT1;         
 
