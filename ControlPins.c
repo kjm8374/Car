@@ -93,8 +93,8 @@ void ControlPin_SI_Init()
 //////////////////////////////////////////
 void ControlPin_CLK_Init()
 {
-	// use 200000 to make a 100K clock, 1 interrupt for each edge
-	unsigned long period = CalcPeriodFromFrequency (200000);
+	// use 200,000 to make a 100K clock, 1 interrupt for each edge
+	unsigned long period = CalcPeriodFromFrequency (800000);
 	// initialize P5.4 and make it output (P5.4 CLK Pin)
 	P5->SEL0 &= ~CLK;
 	P5->SEL1 &= ~CLK;

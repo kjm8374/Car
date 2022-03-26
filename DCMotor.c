@@ -61,7 +61,7 @@ void init_motors(uint16_t period){
 
 //	period_servo = 3000000/50; //3 MHz because used clock divider to cut the clock from 48Mhz to 3Mhz
 void init_servos(uint16_t period){
-	TIMER_A2_PWM_Init(period,(double) 0.075,1);
+	TIMER_A2_PWM_Init(period,0.075,1);
 }
 
 //int main(void) {

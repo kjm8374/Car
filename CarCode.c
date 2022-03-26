@@ -36,8 +36,10 @@ int trackWidth =128;
 
 
 extern uint16_t line[128];
+extern BOOLEAN g_sendData;
 uint16_t SmoothLine[128];
-uint16_t DiffLine[128];
+uint32_t DiffLine[128];
+BOOLEAN debug;
 
 void CalculatePeakLocations(void);
 void evaluatePositionANDTurn(int LeftLocation, int RightLocation);
@@ -59,26 +61,31 @@ int main(){
 	int i=0;
 	uint16_t motor_period = 48000000/10000;
 	uint16_t servo_period = 3000000/50;
-	//DisableInterrupts();
+	debug = TRUE;
+	DisableInterrupts();
 	uart0_init();
 	uart0_put("Uart Initialized\r\n");
 	//init leds for debugging etc
 	LED1_Init();
 	LED2_Init();
 	INIT_Camera();
+	uart0_put("1\r\n");
 	//init motors
 	init_motors(motor_period);
 	//init servos
 	init_servos(servo_period);
-	//EnableInterrupts();
+	EnableInterrupts();
+	TIMER_A2_PWM_DutyCycle(0.075,1);
+	myDelay(25);
+	
 ////testing for servos uncomment to test that bad boy
-//	while(i<5) {
+//	while(TRUE) {
 //		TIMER_A2_PWM_DutyCycle(0.075,1);
-//		myDelay(100);
+//		//myDelay(100);
 //		TIMER_A2_PWM_DutyCycle(0.05,1);
-//		myDelay(100);
+//		//myDelay(100);
 //		TIMER_A2_PWM_DutyCycle(0.1,1);
-//		myDelay(100);
+//		//myDelay(100);
 //		i++;
 //			}
 //	i=0;
@@ -86,44 +93,65 @@ int main(){
 //		reset_PWM();
 
 ////testing for dc motors uncomment to test those bad boys
-//while(TRUE){
-//	//forward
-//	//uart0_put("forward\n");
+//	while(TRUE){
+//		//forward
+//		//uart0_put("forward\n");
 
-//	TIMER_A0_PWM_DutyCycle(0.4,1);
-//	TIMER_A0_PWM_DutyCycle(0.4,3);
-//	TIMER_A0_PWM_DutyCycle(0.0,2);
-//	TIMER_A0_PWM_DutyCycle(0.0,4);
-//	myDelay(1000);
+//		TIMER_A0_PWM_DutyCycle(0.4,1);
+//		TIMER_A0_PWM_DutyCycle(0.4,3);
+//		TIMER_A0_PWM_DutyCycle(0.0,2);
+//		TIMER_A0_PWM_DutyCycle(0.0,4);
+//		myDelay(1000);
 
-//	reset_PWM();
-//	myDelay(100);
-//	//reverse
-//	
-//	//uart0_put("forward\n");
-//	TIMER_A0_PWM_DutyCycle(0.4,2);
-//	TIMER_A0_PWM_DutyCycle(0.4,4);
-//	TIMER_A0_PWM_DutyCycle(0.0,1);
-//	TIMER_A0_PWM_DutyCycle(0.0,3);
-//	myDelay(1000);
-//	reset_PWM();
-//	
-//}	
+//		reset_PWM();
+//		myDelay(100);
+//		//reverse
+//		
+//		//uart0_put("forward\n");
+//		TIMER_A0_PWM_DutyCycle(0.4,2);
+//		TIMER_A0_PWM_DutyCycle(0.4,4);
+//		TIMER_A0_PWM_DutyCycle(0.0,1);
+//		TIMER_A0_PWM_DutyCycle(0.0,3);
+//		myDelay(1000);
+//		reset_PWM();
+//		
+//	}	
 	//init switches for starting
 	
-	
+	//uart0_put("We made it/r/n");
 	//
 	//main while loop where all the magic happens
 	while(TRUE){
+		  TIMER_A0_PWM_DutyCycle(0.25,1);
+  		TIMER_A0_PWM_DutyCycle(0.25,3);
+  		TIMER_A0_PWM_DutyCycle(0.0,2);
+  		TIMER_A0_PWM_DutyCycle(0.0,4);
 			//Read trace
-		for (i=0; i < 129; i++){
-			sprintf(str, "%d\r\n", line[i]);
-			uart0_put(str);
-		}	
+//		for (i=0; i < 129; i++){
+//			sprintf(str, "%d\r\n", line[i]);
+//			uart0_put(str);
+//		}	
 		//Normalize trace to make it smooth
 		//uses line to generate smoothline and diffline
 		FilterLine();
-		
+		if(debug) {
+			if (g_sendData == TRUE) 
+		{
+			LED1_On();
+			// send the array over uart
+			sprintf(str,"%i\n\r",-1); // start value
+			uart0_put(str);
+			for (i = 0; i < 128; i++) 
+			{
+				sprintf(str,"%i\n\r", DiffLine[i]);
+				uart0_put(str);
+			}
+			sprintf(str,"%i\n\r",-2); // end value
+			uart0_put(str);
+			LED1_Off();
+			g_sendData = FALSE;
+		}
+		}
 		//Find left and right edge
 		// gets the peak locations dawg 
 		CalculatePeakLocations();
@@ -153,28 +181,28 @@ void CalculatePeakLocations(){
 	rightPeakLoc = 64;
 	
 	//might want to change this to drop first 20 and last 20 instead of 10
-	for(idx = 10;idx <129; idx++){
+	for(idx = 20;idx <109; idx++){
 		TempVal = DiffLine[idx];
-		//edge case
+		//Actual case
 		if(TempVal > DiffLine[leftPeakLoc])
 		{
 			leftPeakLoc = idx;
 		}
-		//edge case
+		//Actual case
 		if(TempVal<DiffLine[rightPeakLoc])
 		{
 			rightPeakLoc=idx;
 		}
 	}
-		//actual case
+		//Edge case
 		if(leftPeakLoc>=64){
-			leftPeakLoc=64;
+			//leftPeakLoc=64;
 			rightPeakLoc=127;
 		}
-		//actual case
+		//Edge case
 		else if(rightPeakLoc<=64){
 			leftPeakLoc=0;
-			rightPeakLoc = 64;
+			//rightPeakLoc = 64;
 		}
 }
 
@@ -182,10 +210,11 @@ void CalculatePeakLocations(){
 void FilterLine(){
 	int L = 0;
 	
+	
 	for(L=2;L<127;L++){
-		SmoothLine[L] = (((line[L-2])+ (line[L-1]) + (line[L]) + (line[L+1]) + (line[L+2]))/6);
-		SmoothLine[L+1] = (((line[L-1])+ (line[L]) + (line[L+1]) + (line[L+2]) + (line[L+3]))/6);	
-		DiffLine[L-1] = ((SmoothLine[L+1] - SmoothLine[L-1])/2);		
+		SmoothLine[L] = (((line[L-2])+ (line[L-1]) + (line[L]) + (line[L+1]) + (line[L+2]))/5);
+		SmoothLine[L+1] = (((line[L-1])+ (line[L]) + (line[L+1]) + (line[L+2]) + (line[L+3]))/5);	
+		DiffLine[L] = ((SmoothLine[L+1] - SmoothLine[L-1])/2);		
 	}
 		DiffLine[126] = (SmoothLine[127] - SmoothLine[125])/2;
 		DiffLine[127] = (SmoothLine[127] - SmoothLine[126]);
@@ -193,9 +222,28 @@ void FilterLine(){
 }
 
 void evaluatePositionANDTurn(int LeftLocation, int RightLocation){
+	int i =0;
 	int halfTrack = trackWidth >> 2;
-	int LeftMiss = 0;
-	int RightMiss = 0;
+	int LeftMiss = 1;
+	int RightMiss = 1;
+	//int RightFound = 0;//1 for found 0 for not found
+	//int LeftFound = 0;//1 for found 0 for not found
+	for(i=64; i>0;i--){
+		if(DiffLine[i] > 2000){
+			//means we found the left line
+			//LeftFound=1;
+			LeftMiss =0;
+		}
+	}
+	
+		for(i=64; i<128;i++){
+		if(DiffLine[i] >2000){
+			//means we found the right line
+			//RightFound=1;
+			RightMiss =0;
+		}
+	}
+		
 	if(LeftLocation == 999 && RightLocation == 999){
 		CalculatedPosition = 64;
 	}
@@ -220,20 +268,20 @@ void evaluatePositionANDTurn(int LeftLocation, int RightLocation){
 	//on left of the track, need to TURN RIGHT
 	if(CalculatedPosition< 64 ){
 		//entercode to turn right
-		TIMER_A2_PWM_DutyCycle(0.1,1);
-		
+		TIMER_A2_PWM_DutyCycle(0.05,1);
+		myDelay(25);
 	}
 		//on right of the track, need to TURN LEFT
 	if(CalculatedPosition>64 ){
 		//enter code to turn left
-		TIMER_A2_PWM_DutyCycle(0.05,1);
-		
+		TIMER_A2_PWM_DutyCycle(0.1,1);
+		myDelay(25);
 	}
 	//in center of track, not very likely
 	if(CalculatedPosition==64 ){
 		//enter code to turn left
 		TIMER_A2_PWM_DutyCycle(0.075,1);
-		
+		myDelay(25);
 	}
 
 }	
