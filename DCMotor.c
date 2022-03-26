@@ -35,6 +35,24 @@ void reset_PWM(){
 
 void init_motors(uint16_t period){
 	
+	// configure PortPin for jumper board to enable
+	//both motors need to turn on 3.6 and 3.7
+	//set as general i/o
+	P3->SEL0 &= ~BIT6; 
+	P3->SEL1 &= ~BIT6;
+	P3->SEL0 &= ~BIT7; 
+	P3->SEL1 &= ~BIT7;
+	// make 3.6 and 3.7 high drive strength
+	P3->DS |= BIT6;
+	P3->DS |= BIT7;
+	// make 3.6 and 3.7 outputs	 
+	P3->DIR |= BIT6;
+	P3->DIR |= BIT7;
+	// turn on output 3.6 and 3.7
+	P3->OUT |= BIT6;
+	P3->OUT |= BIT7;
+	
+	//the rest of motor initialization needed
 	TIMER_A0_PWM_Init(period,0.0,1);
 	TIMER_A0_PWM_Init(period,0.0,2);
 	TIMER_A0_PWM_Init(period,0.0,3);
