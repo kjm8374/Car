@@ -184,10 +184,10 @@ void FilterLine(){
 	
 	for(L=2;L<127;L++){
 		SmoothLine[L] = (((line[L-2])+ (line[L-1]) + (line[L]) + (line[L+1]) + (line[L+2]))/6);
-		//SmoothLine[L+1] = (((line[L-1])+ (line[L]) + (line[L+1]) + (line[L+2]) + (line[L+3]))/6);	
+		SmoothLine[L+1] = (((line[L-1])+ (line[L]) + (line[L+1]) + (line[L+2]) + (line[L+3]))/6);	
 		DiffLine[L-1] = ((SmoothLine[L+1] - SmoothLine[L-1])/2);		
 	}
-		//DiffLine[126] = (SmoothLine[127] - SmoothLine[125])/2;
+		DiffLine[126] = (SmoothLine[127] - SmoothLine[125])/2;
 		DiffLine[127] = (SmoothLine[127] - SmoothLine[126]);
 	
 }
