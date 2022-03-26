@@ -60,8 +60,9 @@ int main(){
 	char str[200];
 	int i=0;
 	uint16_t motor_period = 48000000/10000;
-	uint16_t servo_period = 3000000/50;
-	debug = TRUE;
+	//uint16_t servo_period = 3000000/50;
+	uint16_t servo_period = 48000000/(50.0*8.0);
+	debug = FALSE;
 	DisableInterrupts();
 	uart0_init();
 	uart0_put("Uart Initialized\r\n");
@@ -80,12 +81,12 @@ int main(){
 	
 ////testing for servos uncomment to test that bad boy
 //	while(TRUE) {
-//		TIMER_A2_PWM_DutyCycle(0.075,1);
-//		//myDelay(100);
-//		TIMER_A2_PWM_DutyCycle(0.05,1);
-//		//myDelay(100);
-//		TIMER_A2_PWM_DutyCycle(0.1,1);
-//		//myDelay(100);
+//		TIMER_A2_PWM_DutyCycle(0.045,1);
+//		myDelay(25);
+//		TIMER_A2_PWM_DutyCycle(0.09,1);
+//		myDelay(25);
+//		TIMER_A2_PWM_DutyCycle(0.12,1);
+//		myDelay(25);
 //		i++;
 //			}
 //	i=0;
@@ -166,19 +167,15 @@ int main(){
 		//D L > ( D R + margin), steer left
 		//else go straight
 		evaluatePositionANDTurn(leftPeakLoc,rightPeakLoc);
-
 		}
-	
-	
-	
 }
 
 // find the locations of the peaks 
 void CalculatePeakLocations(){
 	int idx;
 	int TempVal = 999;
-	leftPeakLoc = 64;
-	rightPeakLoc = 64;
+	leftPeakLoc = 20;
+	rightPeakLoc = 20;
 	
 	//might want to change this to drop first 20 and last 20 instead of 10
 	for(idx = 20;idx <109; idx++){
@@ -194,16 +191,16 @@ void CalculatePeakLocations(){
 			rightPeakLoc=idx;
 		}
 	}
-		//Edge case
-		if(leftPeakLoc>=64){
-			//leftPeakLoc=64;
-			rightPeakLoc=127;
-		}
-		//Edge case
-		else if(rightPeakLoc<=64){
-			leftPeakLoc=0;
-			//rightPeakLoc = 64;
-		}
+//		//Edge case
+//		if(leftPeakLoc>=64){
+//			//leftPeakLoc=64;
+//			rightPeakLoc=127;
+//		}
+//		//Edge case
+//		else if(rightPeakLoc<=64){
+//			leftPeakLoc=0;
+//			//rightPeakLoc = 64;
+//		}
 }
 
 
@@ -222,8 +219,9 @@ void FilterLine(){
 }
 
 void evaluatePositionANDTurn(int LeftLocation, int RightLocation){
+	char streval[200];
 	int i =0;
-	int halfTrack = trackWidth >> 2;
+	int halfTrack = trackWidth/2;
 	int LeftMiss = 1;
 	int RightMiss = 1;
 	//int RightFound = 0;//1 for found 0 for not found
@@ -252,36 +250,38 @@ void evaluatePositionANDTurn(int LeftLocation, int RightLocation){
 			//means that we found both lines
 			dif = RightLocation - LeftLocation;
 			currentLocation = dif/2;
-			CalculatedPosition = currentLocation + LeftLocation;
+			CalculatedPosition = LeftLocation + currentLocation;
 		}
 		else if(RightMiss ==0 && LeftMiss == 1){
 			//cant find left but found the right
 			//verify its actually an edge
-			CalculatedPosition = (RightLocation - halfTrack);
+			CalculatedPosition = (RightLocation - 64);
 		}
 		else if(RightMiss==1 && LeftMiss ==0){
-			CalculatedPosition = (LeftLocation + halfTrack);
+			CalculatedPosition = (LeftLocation + 64);
 		}
 	
 	}	
-	
+	sprintf(streval,"%f\n\r",CalculatedPosition); // start value
+	uart0_put(streval);
 	//on left of the track, need to TURN RIGHT
 	if(CalculatedPosition< 64 ){
 		//entercode to turn right
+
 		TIMER_A2_PWM_DutyCycle(0.05,1);
-		myDelay(25);
+		//myDelay(25);
 	}
 		//on right of the track, need to TURN LEFT
 	if(CalculatedPosition>64 ){
 		//enter code to turn left
 		TIMER_A2_PWM_DutyCycle(0.1,1);
-		myDelay(25);
+		//myDelay(25);
 	}
 	//in center of track, not very likely
 	if(CalculatedPosition==64 ){
 		//enter code to turn left
 		TIMER_A2_PWM_DutyCycle(0.075,1);
-		myDelay(25);
+		//myDelay(25);
 	}
 
 }	
