@@ -158,12 +158,12 @@ void CalculatePeakLocations(){
 		//edge case
 		if(TempVal > DiffLine[leftPeakLoc])
 		{
-			leftPeakLoc = 1;
+			leftPeakLoc = idx;
 		}
 		//edge case
 		if(TempVal<DiffLine[rightPeakLoc])
 		{
-			rightPeakLoc=1;
+			rightPeakLoc=idx;
 		}
 	}
 		//actual case
