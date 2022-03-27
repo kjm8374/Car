@@ -37,7 +37,7 @@ int trackWidth =128;
 
 extern uint16_t line[128];
 extern BOOLEAN g_sendData;
-uint16_t SmoothLine[128];
+uint32_t SmoothLine[128];
 uint32_t DiffLine[128];
 BOOLEAN debug;
 
