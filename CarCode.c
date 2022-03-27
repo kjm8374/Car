@@ -174,8 +174,9 @@ int main(){
 void CalculatePeakLocations(){
 	int idx;
 	int TempVal = 999;
-	leftPeakLoc = 20;
-	rightPeakLoc = 20;
+	//tried these starting at 20 but didnt work
+	leftPeakLoc = 64;
+	rightPeakLoc = 64;
 	
 	//might want to change this to drop first 20 and last 20 instead of 10
 	for(idx = 20;idx <109; idx++){
@@ -265,18 +266,49 @@ void evaluatePositionANDTurn(int LeftLocation, int RightLocation){
 	sprintf(streval,"%f\n\r",CalculatedPosition); // start value
 	uart0_put(streval);
 	//on left of the track, need to TURN RIGHT
-	if(CalculatedPosition< 64 ){
+	if(CalculatedPosition< 64 )
+		{
 		//entercode to turn right
-
-		TIMER_A2_PWM_DutyCycle(0.05,1);
+		//TIMER_A2_PWM_DutyCycle(0.05,1);
 		//myDelay(25);
-	}
+			//adding better logic here for different turn amounts
+			if(CalculatedPosition> 60 ){
+				//turn slightly bc close to middle (betweem 60 and 64
+				
+			}else if(CalculatedPosition> 55 ){
+				//turn slightly bc close to middle (betweem 55 and 64)
+			}else if(CalculatedPosition> 50 ){
+				//turn slightly harder bc close to middle (betweem 55 and 64)
+			}else if(CalculatedPosition> 45 ){
+				//turn pretty hard bc close to middle (betweem 45 and 64)
+			}else{
+				//turn really hard right  bc far to the left of the track
+			}
+			
+		}
+		
+
 		//on right of the track, need to TURN LEFT
 	if(CalculatedPosition>64 ){
 		//enter code to turn left
-		TIMER_A2_PWM_DutyCycle(0.1,1);
+		//TIMER_A2_PWM_DutyCycle(0.1,1);
 		//myDelay(25);
+					//adding better logic here for different turn amounts
+			if(CalculatedPosition< 65 ){
+				//turn slightly bc close to middle (betweem 65 and 64
+				
+			}else if(CalculatedPosition< 70 ){
+				//turn slightly bc close to middle (betweem 70 and 64)
+			}else if(CalculatedPosition< 75 ){
+				//turn slightly harder bc close to middle (betweem 75 and 64)
+			}else if(CalculatedPosition< 80 ){
+				//turn pretty hard bc close to middle (betweem 80 and 64)
+			}else{
+				//turn really hard left  bc far to the rightof the track
+			}
+		
 	}
+	
 	//in center of track, not very likely
 	if(CalculatedPosition==64 ){
 		//enter code to turn left
