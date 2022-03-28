@@ -75,6 +75,7 @@ void initialize() {
     LED1_Init();
     LED2_Init();
     INIT_Camera();
+		OLED_Init();
     //init motors
     init_motors(motor_period);
     //init servos
@@ -94,9 +95,9 @@ int main(){
 		//int max_val = 0;
     debug = 0;
 		initialize(); 
-	//OLED_display_on();
-	//OLED_display_clear();
-	//OLED_display_on();
+		OLED_display_on();
+		OLED_display_clear();
+		OLED_display_on();
 
 	while(TRUE){
 		
@@ -146,8 +147,8 @@ int main(){
 		}
 		//uart0_put("after eval and turn");
 		
-		//OLED_display_clear();
-		//OLED_DisplayCameraData(line);
+		OLED_display_clear();
+		OLED_DisplayCameraData(line);
 
 		MotorsForward(25);
 		}
@@ -182,6 +183,7 @@ void CalculatePeakLocations(int* leftPeakLoc, int* rightPeakLoc){
 		if(TempVal > DiffLine[*leftPeakLoc])
 		{
 			*leftPeakLoc = idx;
+			
 		}
 	}
 	for(idx = 65; idx <120; idx++){
@@ -190,6 +192,8 @@ void CalculatePeakLocations(int* leftPeakLoc, int* rightPeakLoc){
 		if(TempVal > DiffLine[*rightPeakLoc])
 		{
 			*rightPeakLoc=idx;
+			
+			
 		}
 	}
 //		//Edge case
@@ -210,19 +214,21 @@ void evaluatePositionANDTurn(int* leftPeakLoc, int* rightPeakLoc, int* Calculate
 	int i =0;
 	int rightPeakFound = 0;//1 for found 0 for not found
 	int leftPeakFound = 0;//1 for found 0 for not found
-	for(i=10; i<65;i++){
+	for(i=64; i>20;i++){
 		if(DiffLine[i] > 1000){
 			//means we found the left line
 			//LeftFound=1;
 			leftPeakFound = 1;
+			break;
 		}
 	}
 	
-		for(i=64; i<118;i++){
-		if(DiffLine[i] > 1000){
+		for(i=64; i<108;i++){
+			if(DiffLine[i] > 1000){
 			//means we found the right line
 			//RightFound=1;
 			rightPeakFound = 1;
+			break;
 		}
 	}
 		

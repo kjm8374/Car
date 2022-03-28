@@ -146,6 +146,22 @@ int px_height;
 
 }
 
+//void oled_floating_to_oled(OLEDCanvas canvas, const double* array, double offset, int n)
+//{
+//    oled_clear(canvas);
+
+//    for(int i = 0; i < SSD1306_LCDWIDTH; i++)
+//    {
+//        double i_f = (((F64) i) / SSD1306_LCDWIDTH) * n;
+//        // set pixel based on camera_in_array.
+//        // 0 = top of screen, SCREEN_HEIGHT bottom of screen...
+//        int px_height = SSD1306_LCDHEIGHT - (I32)((array[(U32)i_f] + offset) * SSD1306_LCDHEIGHT);
+//        px_height = FW_MAX(px_height, 0);
+//        px_height = FW_MIN(px_height, SSD1306_LCDHEIGHT - 1);
+//        canvas[i + (SSD1306_LCDWIDTH * (px_height / 8))] |= (1 << (px_height & 7));
+//    }
+//}
+
 void OLED_ClearTextArr(void)
 {
 	memset(OLED_TEXT_ARR, 0, 1024);
