@@ -73,6 +73,26 @@ void MotorsForward(double speed){
   		TIMER_A0_PWM_DutyCycle(0.0,4);
 }
 
+void RightMotorForward(double speed){
+			
+	    reset_PWM();
+			speed = speed*0.01;
+		  TIMER_A0_PWM_DutyCycle(speed,1);
+  		TIMER_A0_PWM_DutyCycle(0.0,3);
+  		TIMER_A0_PWM_DutyCycle(0.0,2);
+  		TIMER_A0_PWM_DutyCycle(0.0,4);
+}
+
+void LeftMotorForward(double speed){
+			
+	    reset_PWM();
+			speed = speed*0.01;
+		  TIMER_A0_PWM_DutyCycle(speed,3);
+  		TIMER_A0_PWM_DutyCycle(0.0,1);
+  		TIMER_A0_PWM_DutyCycle(0.0,2);
+  		TIMER_A0_PWM_DutyCycle(0.0,4);
+}
+
 void MotorsReverse(double speed){
 	    reset_PWM();
 			speed = speed*0.01;
