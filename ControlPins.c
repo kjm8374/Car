@@ -21,7 +21,7 @@ extern uint32_t SystemCoreClock;
 // NOTE: we have to double 50000, because we need a clock for the rising edge and one for the falling edge.
 //#define HIGH_CLOCK_SPEED 48000000
 
-#define CLK_PERIOD ((double)SystemCoreClock/180000.0) 
+#define CLK_PERIOD ((double)SystemCoreClock/1800000.0) 
 
 // ADC_In() gets the latest value from the ADC
 // ADC will be P4.7 A6
