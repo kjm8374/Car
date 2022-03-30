@@ -65,7 +65,7 @@ void myDelay(int del){
 void initialize() {
     
     uint16_t motor_period = 48000000/10000;
-    //uint32_t servo_period = 3000000/50;
+    uint32_t servo_period = 3000000/50;
 	
     DisableInterrupts();
     //uart0_init();
@@ -79,8 +79,8 @@ void initialize() {
     //init motors
     init_motors(motor_period);
     //init servos
-	  init_servos(15000);
-    //init_servos(servo_period);
+	  //init_servos(15000);
+    init_servos(servo_period);
     EnableInterrupts();
     TIMER_A2_PWM_DutyCycle(0.075,1);
     myDelay(25);
@@ -106,7 +106,7 @@ int main(){
 
 
 	while(TRUE){
-		MotorsForward(24);
+		MotorsForward(25);
 		//LeftMotorForward(30);
 		FilterLine(SmoothLine, DiffLine);
 
@@ -116,7 +116,7 @@ int main(){
 		
 		if(stop_val < 8500){
 			count++;
-			if(count==3){
+			if(count==50){
 				MotorsForward(0);
 				break;
 			}
@@ -274,7 +274,7 @@ void TurnLeftPercent(double percentage){
 	turnDuty = 0.077 + percentage*0.025;
 	
 	TIMER_A2_PWM_DutyCycle(turnDuty,1);
-	myDelay(25);
+	//myDelay(25);
 	}
 	
 }
@@ -288,7 +288,7 @@ void TurnRightPercent(double percentage){
 		turnDuty = 0.075 - percentage*0.025;
 	
 	TIMER_A2_PWM_DutyCycle(turnDuty,1);
-	myDelay(25);
+	//myDelay(25);
 	}
 	
 	
