@@ -2,7 +2,7 @@
 *.uvprojx
 *.uvoptx
 *.uvguix
-*.uvguix.malho
+*.malho
 *.scvd
 **/Listings
 **/Objects
