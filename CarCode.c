@@ -85,9 +85,9 @@ void initialize() {
     EnableInterrupts();
     TIMER_A2_PWM_DutyCycle(0.075,1);
     myDelay(25);
-	  //OLED_display_on();
-	  //OLED_display_clear();
-	  //OLED_display_on();
+//	  OLED_display_on();
+//	  OLED_display_clear();
+//	  OLED_display_on();
     
 }
 int main(){
@@ -107,9 +107,12 @@ int main(){
 		//OLED_display_on();
 		//OLED_display_clear();
 		//OLED_display_on();
+		MotorsForward(28);
 
+	
+	
+	
 	while(TRUE){
-		MotorsForward(25);
 		//LeftMotorForward(30);
 		FilterLine(SmoothLine, DiffLine);
 
@@ -222,7 +225,7 @@ void evaluatePositionANDTurn(int* leftPeakLoc, int* rightPeakLoc, signed DiffLin
 	//char str[200];
 	int leftPeakFound = 0;//1 for found 0 for not found
 
-	if(DiffLine[*leftPeakLoc] > 600){
+	if(DiffLine[*leftPeakLoc] > 700){
 			//means we found the left line
 			leftPeakFound = 1;
 		  LED2_Off();
@@ -231,7 +234,7 @@ void evaluatePositionANDTurn(int* leftPeakLoc, int* rightPeakLoc, signed DiffLin
 	}
 	
 
-	if(DiffLine[*rightPeakLoc] < -600){
+	if(DiffLine[*rightPeakLoc] < -700){
 			//means we found the right line
 			rightPeakFound = 1;
 		  LED2_Off();
@@ -246,32 +249,29 @@ void evaluatePositionANDTurn(int* leftPeakLoc, int* rightPeakLoc, signed DiffLin
   if(rightPeakFound) {
 		if (*rightPeakLoc > 95){
 			TurnLeftPercent(75);
-		  //RightMotorForward(40);
-			//myDelay(5);
+			MotorsForward(28);
 		}
 		else if (*rightPeakLoc < 95){
 			TurnLeftPercent(100);
-		  //RightMotorForward(60);
-			//myDelay(5);
+		  //RightMotorForward(50);
+			//LeftMotorReverse(25);
 		}
-		//TurnLeftPercent(100);
 	}
 	if(leftPeakFound){
 		if (*leftPeakLoc > 32){
 			TurnRightPercent(100);
-		  //LeftMotorForward(60);
-			//myDelay(5);
+		  //LeftMotorForward(50);
+			//RightMotorReverse(25);
 		}
 		else if (*leftPeakLoc < 32){
 			TurnRightPercent(75);
-		  //LeftMotorForward(40);
-			//myDelay(5);
+			MotorsForward(28);
 		}
-		//TurnRightPercent(100);
 	}
 	if(leftPeakFound==0 && rightPeakFound==0){
 		
 		TurnLeftPercent(0);
+		MotorsForward(30);
 	}
 
 }	
