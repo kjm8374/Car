@@ -1,4 +1,5 @@
 /*
+*This is a copy of the car code without PID as  a backup
 * Rochester Institute of Technology
 * Department of Computer Engineering
 * CMPE 460  Interfacing Digital Electronics
@@ -37,22 +38,6 @@ double filter[131];
 
 extern uint16_t line[128];
 extern BOOLEAN g_sendData;
-
-//start pid stuff
-double servoPosition = 0;
-double Vdes = 0;
-double Vact = 0;
-double err = 0;
-//P
-double Kp=0;
-double P=0;
-//I
-double Ki=0;
-//D
-double Kd=0;
-
-//end pid stuff
-
 //found dif line needs to be a u int 32
 
 void FilterLine(uint16_t SmoothLine[], signed DiffLine[]);
@@ -63,10 +48,6 @@ void myDelay(int del);
 int max(uint16_t SmoothLine[]);
 void TurnRightPercent(double percentage);
 void TurnLeftPercent(double percentage);
-void AdjustMotors(double percentage);
-
-
-
 //void Normalize(void);
 //double Average(void);
 //double CalculateSD(double mean);
@@ -105,9 +86,9 @@ void initialize() {
     EnableInterrupts();
     TIMER_A2_PWM_DutyCycle(0.075,1);
     myDelay(25);
-//	  OLED_display_on();
-//	  OLED_display_clear();
-//	  OLED_display_on();
+	  //OLED_display_on();
+	  //OLED_display_clear();
+	  //OLED_display_on();
     
 }
 int main(){
@@ -121,7 +102,19 @@ int main(){
 	  int leftPeakLoc = 0;
 	  int rightPeakLoc = 0;
 	
-
+		//start pid stuff
+		double err = 0;
+		//err = 
+		//P
+		double Kp=0;
+	
+		//I
+		double Ki=0;
+	
+		//D
+		double Kd=0;
+	
+		//end pid stuff
 	
 		//int count = 0;
 		//int max_val = 0;
@@ -152,7 +145,36 @@ int main(){
 				break;
 			}
 		}
+		//Normalize();
+		//uart0_put("afterNormalize");	
+	
+		//Derivative();
+		//uart0_put("after Derivative");
+		
+		//Derivative2();
+		//uart0_put("after Derivative2");
+		//max_val = max();
 
+//		if(debug) {
+//			if (g_sendData == TRUE) 
+//		{
+//			LED1_On();
+//			// send the array over uart
+//			sprintf(str,"%i\n\r",-1); // start value
+//			uart0_put(str);
+//			for (i = 0; i < 128; i++) 
+//			{
+//				sprintf(str,"%i\n\r", DiffLine[i]);
+//				uart0_put(str);
+//			}
+//			sprintf(str,"%i\n\r",-2); // end value
+//			uart0_put(str);
+//			LED1_Off();
+//			g_sendData = FALSE;
+//		}
+//		}
+		//Find left and right edge
+		// gets the peak locations dawg 
 		CalculatePeakLocations(&leftPeakLoc,&rightPeakLoc,DiffLine);
 		//uart0_put("after calculate peaks");
 		evaluatePositionANDTurn(&leftPeakLoc,&rightPeakLoc, DiffLine);
@@ -243,46 +265,64 @@ void evaluatePositionANDTurn(int* leftPeakLoc, int* rightPeakLoc, signed DiffLin
 	//sprintf(str,"Right: %i \r\n",rightPeakFound);
 	//uart0_put(str);	
   if(rightPeakFound) {
-		if (*rightPeakLoc > 95){
-			TurnLeftPercent(75);
+		if (*rightPeakLoc <=79){
+			TurnLeftPercent(100);
 			//MotorsForward(28);
-			//RightMotorForward(35);
-			//LeftMotorForward(10);
+			RightMotorForward(30);
+			LeftMotorForward(20);
 			//LeftMotorForward(0);
 		}
-		else if (*rightPeakLoc < 95){
-			TurnLeftPercent(100);
-			Vdes = 25;
-		  //RightMotorForward(40);
-			//LeftMotorForward(5);
+		else if (*rightPeakLoc > 79 && *rightPeakLoc <=95){
+			TurnLeftPercent(75);
+		  RightMotorForward(30);
+			LeftMotorForward(25);
 			//LeftMotorReverse(5);
+		}
+		else if (*rightPeakLoc > 95 && *rightPeakLoc <=110){
+			TurnLeftPercent(40);
+		  RightMotorForward(30);
+			LeftMotorForward(27);
+			//LeftMotorReverse(5);
+		}
+		else {
+			TurnLeftPercent(0);
+			RightMotorForward(30);
+			LeftMotorForward(30);
 		}
 	}
 	if(leftPeakFound){
-		if (*leftPeakLoc > 32){
+		if (*leftPeakLoc >=47){
 			TurnRightPercent(100);
-			Vdes = 25;
+		  LeftMotorForward(30);
+			RightMotorForward(20);
+			//RightMotorReverse(5);
 		}
-		else if (*leftPeakLoc < 32){
+		else if (*leftPeakLoc >=31 && *leftPeakLoc <47){
 			TurnRightPercent(75);
 			//RightMotorReverse(0);
-			//RightMotorForward(10);
-			//LeftMotorForward(35);
+			LeftMotorForward(30);
+			RightMotorForward(25);
+		}
+		else if (*leftPeakLoc >=15 && *leftPeakLoc <31){
+			TurnRightPercent(40);
+			//RightMotorReverse(0);
+			LeftMotorForward(30);
+			RightMotorForward(27);
+		}
+		else {
+			TurnRightPercent(0);
+			//RightMotorReverse(0);
+			RightMotorForward(30);
+			LeftMotorForward(30);
 		}
 	}
 	if(leftPeakFound==0 && rightPeakFound==0){
 		
 		TurnLeftPercent(0);
-		//MotorsForward(35);
+		MotorsForward(35);
 	}
 
 }	
-
-void AdjustMotors(double percentage){
-	
-}
-
-
 //turn left a percentage given by the user calling
 void TurnLeftPercent(double percentage){
 	double turnDuty =0;
