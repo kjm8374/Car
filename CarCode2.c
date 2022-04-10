@@ -36,6 +36,7 @@ double normalized_trace[128];
 double filter[131];
 double PrevServoPosition=0;
 double ServoPosition =0;
+//double PrevServoPosition[5];
 double RightSpeed = 0;
 double PrevRightSpeed = 0;
 double LeftSpeed = 0;
@@ -43,8 +44,11 @@ double PrevLeftSpeed = 0;
 double ForwardCount = 0;
 double ForwardCap = 10;
 double BreakTime = 0;
-double BaseSpeed = 25;
+double BaseSpeed = 23;
 double MaxSpeed = 40;
+int count = 0;
+int stop_val = 0;
+
 //double MaxSpeed = BaseSpeed+20;
 
 
@@ -111,8 +115,6 @@ int main(){
 		//BOOLEAN debug;
 	  //char str[200];
     //int i=0;
-	  int count = 0;
-	  int stop_val = 0;
 	  int leftPeakLoc = 0;
 	  int rightPeakLoc = 0;
 	
@@ -137,7 +139,7 @@ int main(){
 		//OLED_display_on();
 		//OLED_display_clear();
 		//OLED_display_on();
-		MotorsForward(25);
+		MotorsForward(BaseSpeed);
 	
 	
 
@@ -152,13 +154,24 @@ int main(){
 		//sprintf(str,"Max: %i ",stop_val); // start value
 		//uart0_put(str);
 		
-		if(stop_val < 8500){
+//		if(stop_val < 8500){
+//			count++;
+//			if(count==50){
+//				MotorsForward(0);
+//				break;
+//			}
+//		}
+	if(stop_val < 8500){
 			count++;
-			if(count==50*2){
+			if(count==50){
 				MotorsForward(0);
 				break;
+				//break;
 			}
-		}
+		}		
+
+		
+
 		//Normalize();
 		//uart0_put("afterNormalize");	
 	
@@ -253,6 +266,7 @@ void CalculatePeakLocations(int* leftPeakLoc, int* rightPeakLoc, signed DiffLine
 }
 
 void evaluatePositionANDTurn(int* leftPeakLoc, int* rightPeakLoc, signed DiffLine[]){
+
 	//char streval[200];
 	//this is 100/64
 	double minimumTurnPercent = 1.5625;
@@ -361,12 +375,12 @@ void AdjustMotors(){
 		
 		if(RightSpeed>BaseSpeed +20){
 			RightSpeed = BaseSpeed;
-			RightMotorReverse(5);
+			RightMotorReverse(100);
 			RightMotorForward(RightSpeed);
 		}
-		if(LeftSpeed<BaseSpeed +20){
+		if(LeftSpeed>BaseSpeed +20){
 			LeftSpeed = BaseSpeed;
-			LeftMotorReverse(5);
+			LeftMotorReverse(100);
 			LeftMotorForward(LeftSpeed);
 		}
 		//*50 because max pwm is 0.1 and wanted to bump speed about 5 in max case
@@ -374,7 +388,7 @@ void AdjustMotors(){
 		helper = helper/4;
 		RightSpeed= RightSpeed + ServoPosition*50;
 		if(RightSpeed>BaseSpeed +10){RightSpeed = BaseSpeed+5;}
-		if(LeftSpeed<BaseSpeed -10){LeftSpeed = BaseSpeed-10;}
+		if(LeftSpeed<BaseSpeed -10){LeftSpeed = BaseSpeed-5;}
 		RightMotorForward(RightSpeed);
 		LeftMotorForward(LeftSpeed);
 		
@@ -382,14 +396,15 @@ void AdjustMotors(){
 	
 	//means it is turning right
 	if(ServoPosition<0.07){
-		if(RightSpeed>BaseSpeed +20){
+		if(RightSpeed>BaseSpeed +20 ){
 			RightSpeed = BaseSpeed;
-			RightMotorReverse(5);
+			RightMotorReverse(100);
 			RightMotorForward(RightSpeed);
+			
 		}
-		if(LeftSpeed<BaseSpeed +20){
+		if(LeftSpeed>BaseSpeed +20){
 			LeftSpeed = BaseSpeed;
-			LeftMotorReverse(5);
+			LeftMotorReverse(100);
 			LeftMotorForward(LeftSpeed);
 		}
 		
@@ -400,7 +415,7 @@ void AdjustMotors(){
 		helper = helper/4;
 		RightSpeed= RightSpeed -helper;
 		LeftSpeed = LeftSpeed +helper;
-		if(RightSpeed<BaseSpeed -10){RightSpeed = BaseSpeed-10;}
+		if(RightSpeed<BaseSpeed -10){RightSpeed = BaseSpeed-5;}
 		if(LeftSpeed>BaseSpeed +10){LeftSpeed = BaseSpeed+5;}
 		RightMotorForward(RightSpeed);
 		LeftMotorForward(LeftSpeed);
