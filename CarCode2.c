@@ -154,7 +154,7 @@ int main(){
 		
 		if(stop_val < 8500){
 			count++;
-			if(count==50){
+			if(count==50*2){
 				MotorsForward(0);
 				break;
 			}
