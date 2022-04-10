@@ -40,6 +40,12 @@ double RightSpeed = 0;
 double PrevRightSpeed = 0;
 double LeftSpeed = 0;
 double PrevLeftSpeed = 0;
+double ForwardCount = 0;
+double ForwardCap = 10;
+double BreakTime = 0;
+double BaseSpeed = 25;
+double MaxSpeed = 40;
+//double MaxSpeed = BaseSpeed+20;
 
 
 extern uint16_t line[128];
@@ -54,7 +60,8 @@ void myDelay(int del);
 int max(uint16_t SmoothLine[]);
 void TurnRightPercent(double percentage);
 void TurnLeftPercent(double percentage);
-void AdjustMotors(void);
+//void AdjustMotors(int* leftPeakLoc, int* rightPeakLoc,int rightPeakFound, int leftPeakFound);
+void AdjustMotors();
 //void Normalize(void);
 //double Average(void);
 //double CalculateSD(double mean);
@@ -185,6 +192,7 @@ int main(){
 		CalculatePeakLocations(&leftPeakLoc,&rightPeakLoc,DiffLine);
 		//uart0_put("after calculate peaks");
 		evaluatePositionANDTurn(&leftPeakLoc,&rightPeakLoc, DiffLine);
+		AdjustMotors();
 		
 //		if(debug){
 //			sprintf(str,"Left: %i ",leftPeakLoc); // start value
@@ -276,6 +284,7 @@ void evaluatePositionANDTurn(int* leftPeakLoc, int* rightPeakLoc, signed DiffLin
 	//uart0_put(str);
 	//sprintf(str,"Right: %i \r\n",rightPeakFound);
 	//uart0_put(str);	
+	
   if(rightPeakFound) {
 		if (*rightPeakLoc >=63){
 			ServoLeftPercent = minimumTurnPercent* (127 - *rightPeakLoc );
@@ -297,32 +306,75 @@ void evaluatePositionANDTurn(int* leftPeakLoc, int* rightPeakLoc, signed DiffLin
 		
 	}
 	if(leftPeakFound==0 && rightPeakFound==0){
-		
+		//TODO
 		TurnLeftPercent(0);
-		//MotorsForward(2);
+		MotorsForward(50);
 	}
-
+	//AdjustMotors(leftPeakLoc,rightPeakLoc, leftPeakFound, rightPeakFound);
 }	
 
+//void AdjustMotors(int* leftPeakLoc, int* rightPeakLoc, int leftPeakFound, int rightPeakFound){
 void AdjustMotors(){
+	int loopCounter = 0;
 	double helper =0;
+	double minimumTurnPercent = 1.5625;
+	double ServoRightPercent = 0;
+	double ServoLeftPercent = 0;
 	PrevRightSpeed = RightSpeed;
 	PrevLeftSpeed = LeftSpeed;
+	
+	//start of addition
+//  if(rightPeakFound) {
+//		if (*rightPeakLoc >=63){
+//			RightSpeed = (MaxSpeed/64)* *rightPeakLoc );
+//			TurnLeftPercent(ServoLeftPercent);
+//		}else{
+//			ServoLeftPercent = 100;
+//			TurnLeftPercent(ServoLeftPercent);
+//		}
+//	}
+//	if(leftPeakFound){
+//		if (*leftPeakLoc <=63){
+//			ServoRightPercent = minimumTurnPercent* (*leftPeakLoc);
+//			TurnRightPercent(ServoRightPercent);
+//		
+//		}else{
+//			ServoRightPercent = 100;
+//			TurnRightPercent(ServoRightPercent);
+//		}			
+//		
+//	}
+	
+	//end of addition
 
-	
-	
 	if (ServoPosition>0.07 && ServoPosition<0.08){
-		RightSpeed = 30;
-		LeftSpeed = 30;
+		
+		RightSpeed = BaseSpeed+5;
+		LeftSpeed = BaseSpeed+5;
 		RightMotorForward(RightSpeed);
 		LeftMotorForward(LeftSpeed);
 	}
 	
 	//means turning left
 	if(ServoPosition>0.08){
+
+		
+		if(RightSpeed>BaseSpeed +20){
+			RightSpeed = BaseSpeed;
+			RightMotorReverse(5);
+			RightMotorForward(RightSpeed);
+		}
+		if(LeftSpeed<BaseSpeed +20){
+			LeftSpeed = BaseSpeed;
+			LeftMotorReverse(5);
+			LeftMotorForward(LeftSpeed);
+		}
 		//*50 because max pwm is 0.1 and wanted to bump speed about 5 in max case
-		RightSpeed= RightSpeed +ServoPosition*50;
-		LeftSpeed = LeftSpeed -ServoPosition*50;
+		helper = ServoPosition*50;
+		helper = helper/4;
+		RightSpeed= RightSpeed + ServoPosition*50;
+		if(RightSpeed>BaseSpeed +10){RightSpeed = BaseSpeed+5;}
+		if(LeftSpeed<BaseSpeed -10){LeftSpeed = BaseSpeed-10;}
 		RightMotorForward(RightSpeed);
 		LeftMotorForward(LeftSpeed);
 		
@@ -330,11 +382,26 @@ void AdjustMotors(){
 	
 	//means it is turning right
 	if(ServoPosition<0.07){
+		if(RightSpeed>BaseSpeed +20){
+			RightSpeed = BaseSpeed;
+			RightMotorReverse(5);
+			RightMotorForward(RightSpeed);
+		}
+		if(LeftSpeed<BaseSpeed +20){
+			LeftSpeed = BaseSpeed;
+			LeftMotorReverse(5);
+			LeftMotorForward(LeftSpeed);
+		}
+		
+		
 		//trying to make 0.05 = 0.1 and flip the rest to make relation easier
 		//this is my attempt to scale correctly
 		helper = 7.5-ServoPosition*50;
+		helper = helper/4;
 		RightSpeed= RightSpeed -helper;
 		LeftSpeed = LeftSpeed +helper;
+		if(RightSpeed<BaseSpeed -10){RightSpeed = BaseSpeed-10;}
+		if(LeftSpeed>BaseSpeed +10){LeftSpeed = BaseSpeed+5;}
 		RightMotorForward(RightSpeed);
 		LeftMotorForward(LeftSpeed);
 	}
@@ -351,14 +418,17 @@ void TurnLeftPercent(double percentage){
 	double turnDuty =0;
 	PrevServoPosition = ServoPosition;
 	//make sure its in range
-	if(percentage>=0 && percentage<=100){
+	if(percentage>100){percentage=100;}
+	if(percentage<0){percentage=0;}
+	
+	//if(percentage>=0 && percentage<=100){
 	percentage = percentage *.01; //turn percentage into actual value
 		//0.025 because thats the difference between left(0.05) and straight (0.075)
 	turnDuty = 0.077 + percentage*0.025;
 	ServoPosition = turnDuty;
 	TIMER_A2_PWM_DutyCycle(turnDuty,1);
 	//myDelay(25);
-	}
+	//}
 	
 }
 
@@ -366,15 +436,17 @@ void TurnRightPercent(double percentage){
 	//make sure its in range
 	double turnDuty =0;
 	PrevServoPosition = ServoPosition;
-	if(percentage>=0 && percentage<=100){
+	if(percentage>100){percentage=100;}
+	if(percentage<0){percentage=0;}
+	//if(percentage>=0 && percentage<=100){
 		percentage = percentage *.01; //turn percentage into actual value
 		//0.025 because thats the difference between straight (0.075) and right(0.1)  
-		turnDuty = 0.075 - percentage*0.025;
+		turnDuty = 0.073 - percentage*0.025;
 	
 		ServoPosition = turnDuty;
 	TIMER_A2_PWM_DutyCycle(turnDuty,1);
 	//myDelay(25);
-	}
+	//}
 	
 	
 }
