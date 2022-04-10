@@ -269,7 +269,9 @@ void evaluatePositionANDTurn(int* leftPeakLoc, int* rightPeakLoc, signed DiffLin
 
 	//char streval[200];
 	//this is 100/64
-	double minimumTurnPercent = 1.5625;
+	//double minimumTurnPercent = 1.5625;
+	//100/32
+	double minimumTurnPercent = 3.125;
 	double ServoRightPercent = 0;
 	double ServoLeftPercent = 0;
 
@@ -299,17 +301,34 @@ void evaluatePositionANDTurn(int* leftPeakLoc, int* rightPeakLoc, signed DiffLin
 	//sprintf(str,"Right: %i \r\n",rightPeakFound);
 	//uart0_put(str);	
 	
-  if(rightPeakFound) {
-		if (*rightPeakLoc >=63){
+//	if(rightPeakFound && leftPeakFound){
+//		if(*leftPeakLoc > 127- *rightPeakLoc){
+//				ServoRightPercent = 100;
+//				TurnRightPercent(ServoRightPercent);
+//		}
+//		if(127-*rightPeakLoc > *leftPeakLoc){
+//				ServoLeftPercent = 100;
+//				TurnLeftPercent(ServoLeftPercent);
+//		}
+//		return;
+//	}
+	
+  if(rightPeakFound && !leftPeakFound) {
+		//maybe greater than 96
+	  //was 63
+		if (*rightPeakLoc >=96){
 			ServoLeftPercent = minimumTurnPercent* (127 - *rightPeakLoc );
 			TurnLeftPercent(ServoLeftPercent);
 		}else{
 			ServoLeftPercent = 100;
 			TurnLeftPercent(ServoLeftPercent);
 		}
+		return;
 	}
-	if(leftPeakFound){
-		if (*leftPeakLoc <=63){
+	//maybe less than 32
+	//was 63
+	if(leftPeakFound && !rightPeakFound){
+		if (*leftPeakLoc <=32){
 			ServoRightPercent = minimumTurnPercent* (*leftPeakLoc);
 			TurnRightPercent(ServoRightPercent);
 		
@@ -317,12 +336,13 @@ void evaluatePositionANDTurn(int* leftPeakLoc, int* rightPeakLoc, signed DiffLin
 			ServoRightPercent = 100;
 			TurnRightPercent(ServoRightPercent);
 		}			
-		
+		return;
 	}
 	if(leftPeakFound==0 && rightPeakFound==0){
 		//TODO
 		TurnLeftPercent(0);
 		MotorsForward(50);
+		return;
 	}
 	//AdjustMotors(leftPeakLoc,rightPeakLoc, leftPeakFound, rightPeakFound);
 }	
@@ -331,7 +351,8 @@ void evaluatePositionANDTurn(int* leftPeakLoc, int* rightPeakLoc, signed DiffLin
 void AdjustMotors(){
 	int loopCounter = 0;
 	double helper =0;
-	double minimumTurnPercent = 1.5625;
+	//double minimumTurnPercent = 1.5625;
+	double minimumTurnPercent = 3.125;
 	double ServoRightPercent = 0;
 	double ServoLeftPercent = 0;
 	PrevRightSpeed = RightSpeed;
@@ -370,53 +391,55 @@ void AdjustMotors(){
 	}
 	
 	//means turning left
-	if(ServoPosition>0.08){
+	if(ServoPosition>0.09){
 
-		
-		if(RightSpeed>BaseSpeed +20){
-			RightSpeed = BaseSpeed;
-			RightMotorReverse(100);
-			RightMotorForward(RightSpeed);
-		}
-		if(LeftSpeed>BaseSpeed +20){
-			LeftSpeed = BaseSpeed;
-			LeftMotorReverse(100);
-			LeftMotorForward(LeftSpeed);
-		}
+//		
+//		if(RightSpeed>BaseSpeed +20){
+//			RightSpeed = BaseSpeed;
+//			RightMotorReverse(100);
+//			RightMotorForward(RightSpeed);
+//		}
+//		if(LeftSpeed>BaseSpeed +20){
+//			LeftSpeed = BaseSpeed;
+//			LeftMotorReverse(100);
+//			LeftMotorForward(LeftSpeed);
+//		}
 		//*50 because max pwm is 0.1 and wanted to bump speed about 5 in max case
 		helper = ServoPosition*50;
-		helper = helper/4;
-		RightSpeed= RightSpeed + ServoPosition*50;
-		if(RightSpeed>BaseSpeed +10){RightSpeed = BaseSpeed+5;}
-		if(LeftSpeed<BaseSpeed -10){LeftSpeed = BaseSpeed-5;}
+		helper = helper/2;
+		RightSpeed= RightSpeed + helper;
+		LeftSpeed = LeftSpeed - helper/2;
+		if(RightSpeed>BaseSpeed + 20){RightSpeed = BaseSpeed+20;}
+		if(LeftSpeed<BaseSpeed - 20){LeftSpeed = BaseSpeed-20;}
 		RightMotorForward(RightSpeed);
 		LeftMotorForward(LeftSpeed);
 		
 	}
 	
 	//means it is turning right
-	if(ServoPosition<0.07){
-		if(RightSpeed>BaseSpeed +20 ){
-			RightSpeed = BaseSpeed;
-			RightMotorReverse(100);
-			RightMotorForward(RightSpeed);
-			
-		}
-		if(LeftSpeed>BaseSpeed +20){
-			LeftSpeed = BaseSpeed;
-			LeftMotorReverse(100);
-			LeftMotorForward(LeftSpeed);
-		}
+	if(ServoPosition<0.06){
+//		if(RightSpeed>BaseSpeed +20 ){
+//			RightSpeed = BaseSpeed;
+//			RightMotorReverse(100);
+//			RightMotorForward(RightSpeed);
+//			
+//		}
+//		if(LeftSpeed>BaseSpeed +20){
+//			LeftSpeed = BaseSpeed;
+//			LeftMotorReverse(100);
+//			LeftMotorForward(LeftSpeed);
+//		}
 		
 		
 		//trying to make 0.05 = 0.1 and flip the rest to make relation easier
 		//this is my attempt to scale correctly
+		//was 7.5
 		helper = 7.5-ServoPosition*50;
-		helper = helper/4;
-		RightSpeed= RightSpeed -helper;
+		helper = helper/2;
+		RightSpeed= RightSpeed -helper/2;
 		LeftSpeed = LeftSpeed +helper;
-		if(RightSpeed<BaseSpeed -10){RightSpeed = BaseSpeed-5;}
-		if(LeftSpeed>BaseSpeed +10){LeftSpeed = BaseSpeed+5;}
+		if(RightSpeed<BaseSpeed -20){RightSpeed = BaseSpeed-20;}
+		if(LeftSpeed>BaseSpeed +20){LeftSpeed = BaseSpeed+20;}
 		RightMotorForward(RightSpeed);
 		LeftMotorForward(LeftSpeed);
 	}
