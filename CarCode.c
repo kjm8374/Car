@@ -33,11 +33,11 @@
 
 double normalized_trace[128];
 double filter[131];
-
+double PrevServoPosition[5];
 
 extern uint16_t line[128];
 extern BOOLEAN g_sendData;
-
+int servoCount=0;
 //start pid stuff
 double servoPosition = 0;
 double Vdes = 0;
@@ -50,15 +50,15 @@ double P=0;
 double Ki=0;
 //D
 double Kd=0;
-
+int count =0;
 //end pid stuff
 
 //found dif line needs to be a u int 32
 
 void FilterLine(uint16_t SmoothLine[], signed DiffLine[]);
 void CalculatePeakLocations(int* leftPeakLoc, int* rightPeakLoc, signed DiffLine[]);
-void evaluatePositionANDTurn(int* leftPeakLoc, int* rightPeakLoc, signed DiffLine[]);
-
+void evaluatePositionAndTurn(int* leftPeakLoc, int* rightPeakLoc, signed DiffLine[]);
+BOOLEAN checkForStop(int stop_val);
 void myDelay(int del);
 int max(uint16_t SmoothLine[]);
 void TurnRightPercent(double percentage);
@@ -89,7 +89,7 @@ void initialize() {
 	
     DisableInterrupts();
     //uart0_init();
-	  //uart2_init();
+	  uart2_init();
     //uart0_put("Uart Initialized\r\n");
     //init leds for debugging etc
     LED1_Init();
@@ -116,61 +116,51 @@ int main(){
 		//BOOLEAN debug;
 	  //char str[200];
     //int i=0;
-	  int count = 0;
 	  int stop_val = 0;
 	  int leftPeakLoc = 0;
 	  int rightPeakLoc = 0;
-	
+	  BOOLEAN stop;
 
 	
-		//int count = 0;
-		//int max_val = 0;
-    //debug = 0;
 		initialize(); 
 		//OLED_display_on();
 		//OLED_display_clear();
 		//OLED_display_on();
 		MotorsForward(25);
-	
-	
-
-	
-	
+	  uart2_put("\r");
+	  uart2_put("Uart initialized");
 	
 	while(TRUE){
-		//LeftMotorForward(30);
+		
 		FilterLine(SmoothLine, DiffLine);
 
 		stop_val = max(SmoothLine);
-		//sprintf(str,"Max: %i ",stop_val); // start value
-		//uart0_put(str);
 		
-		if(stop_val < 8500){
-			count++;
-			if(count==50){
-				MotorsForward(0);
-				break;
-			}
-		}
-
+		stop = checkForStop(stop_val);
+		
+		if(stop){ break; }
+		
 		CalculatePeakLocations(&leftPeakLoc,&rightPeakLoc,DiffLine);
-		//uart0_put("after calculate peaks");
-		evaluatePositionANDTurn(&leftPeakLoc,&rightPeakLoc, DiffLine);
 		
-//		if(debug){
-//			sprintf(str,"Left: %i ",leftPeakLoc); // start value
-//			uart0_put(str);
-//			sprintf(str,"Right: %i \r\n",rightPeakLoc);
-//			uart0_put(str);	
-//		}
-		//uart0_put("after eval and turn");
+		evaluatePositionAndTurn(&leftPeakLoc,&rightPeakLoc, DiffLine);
 		
-
 		//OLED_display_clear();
 		//OLED_DisplayCameraData(SmoothLine);
 		}
+	
 }
 
+BOOLEAN checkForStop(int stop_val){
+	 	
+	if(stop_val < 8500){
+		count++;
+		if(count==50){
+			MotorsForward(0);
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
 
 void FilterLine(uint16_t SmoothLine[], signed DiffLine[]){
 	int L = 0;
@@ -215,13 +205,17 @@ void CalculatePeakLocations(int* leftPeakLoc, int* rightPeakLoc, signed DiffLine
 
 }
 
-void evaluatePositionANDTurn(int* leftPeakLoc, int* rightPeakLoc, signed DiffLine[]){
-	//char streval[200];
+void evaluatePositionAndTurn(int* leftPeakLoc, int* rightPeakLoc, signed DiffLine[]){
+	//char str[200];
+	double minimumTurnPercent = 2.5625;
+	double ServoRightPercent = 0;
+	double ServoLeftPercent = 0;
+
 	int rightPeakFound = 0;//1 for found 0 for not found
 	//char str[200];
 	int leftPeakFound = 0;//1 for found 0 for not found
 
-	if(DiffLine[*leftPeakLoc] > 700){
+	if(DiffLine[*leftPeakLoc] > 600){
 			//means we found the left line
 			leftPeakFound = 1;
 		  LED2_Off();
@@ -230,51 +224,48 @@ void evaluatePositionANDTurn(int* leftPeakLoc, int* rightPeakLoc, signed DiffLin
 	}
 	
 
-	if(DiffLine[*rightPeakLoc] < -700){
+	if(DiffLine[*rightPeakLoc] < -600){
 			//means we found the right line
 			rightPeakFound = 1;
 		  LED2_Off();
 		  LED2_RED_ON();
 	}
-	//sprintf(str,"Left: %i ",leftPeakFound); // start value
-	//uart0_put(str);
-	//sprintf(str,"Left: %i ",DiffLine[*leftPeakLoc]); // start value
-	//uart0_put(str);
-	//sprintf(str,"Right: %i \r\n",rightPeakFound);
-	//uart0_put(str);	
+//	sprintf(str,"Left: %i ",leftPeakFound); // start value
+//	uart2_put(str);
+//	sprintf(str,"Left: %i ",DiffLine[*leftPeakLoc]); // start value
+//	uart2_put(str);
+//	sprintf(str,"Right: %i \r\n",rightPeakFound);
+//	uart2_put(str);	
+//	sprintf(str,"Left: %i ",DiffLine[*leftPeakLoc]); // start value
+//	uart2_put(str);	
+
+	
   if(rightPeakFound) {
-		if (*rightPeakLoc > 95){
-			TurnLeftPercent(75);
-			//MotorsForward(28);
-			//RightMotorForward(35);
-			//LeftMotorForward(10);
-			//LeftMotorForward(0);
+		if (*rightPeakLoc >=63){
+			ServoLeftPercent = minimumTurnPercent* (127 - *rightPeakLoc );
+			TurnLeftPercent(ServoLeftPercent);
+		}else{
+			ServoLeftPercent = 100;
+			TurnLeftPercent(ServoLeftPercent);
 		}
-		else if (*rightPeakLoc < 95){
-			TurnLeftPercent(100);
-			Vdes = 25;
-		  //RightMotorForward(40);
-			//LeftMotorForward(5);
-			//LeftMotorReverse(5);
-		}
+		PrevServoPosition[servoCount] = ServoLeftPercent;
 	}
 	if(leftPeakFound){
-		if (*leftPeakLoc > 32){
-			TurnRightPercent(100);
-			Vdes = 25;
-		}
-		else if (*leftPeakLoc < 32){
-			TurnRightPercent(75);
-			//RightMotorReverse(0);
-			//RightMotorForward(10);
-			//LeftMotorForward(35);
-		}
+		if (*leftPeakLoc <=63){
+			ServoRightPercent = minimumTurnPercent* (*leftPeakLoc);
+			TurnRightPercent(ServoRightPercent);
+		
+		}else{
+			ServoRightPercent = 100;
+			TurnRightPercent(ServoRightPercent);
+		}			
+		
 	}
 	if(leftPeakFound==0 && rightPeakFound==0){
-		
+		//TODO
 		TurnLeftPercent(0);
-		//MotorsForward(35);
-	}
+		MotorsForward(25);
+	}  
 
 }	
 

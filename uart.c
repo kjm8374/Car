@@ -81,7 +81,7 @@ void uart2_init()
 	// baud rate
 	// N = clock/baud rate = clock_speed/BAUD_RATE
 	// set BRW register //9600
-	EUSCI_A2->BRW = 312;
+	EUSCI_A2->BRW = SystemCoreClock/BAUD_RATE;
 
 	 // clear first and second modulation stage bit fields
 	// MCTLW register;  

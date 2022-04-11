@@ -271,7 +271,7 @@ void evaluatePositionANDTurn(int* leftPeakLoc, int* rightPeakLoc, signed DiffLin
 	//this is 100/64
 	//double minimumTurnPercent = 1.5625;
 	//100/32
-	double minimumTurnPercent = 3.125;
+	double minimumTurnPercent = 2.3625;
 	double ServoRightPercent = 0;
 	double ServoLeftPercent = 0;
 
@@ -279,7 +279,7 @@ void evaluatePositionANDTurn(int* leftPeakLoc, int* rightPeakLoc, signed DiffLin
 	//char str[200];
 	int leftPeakFound = 0;//1 for found 0 for not found
 
-	if(DiffLine[*leftPeakLoc] > 700){
+	if(DiffLine[*leftPeakLoc] > 600){
 			//means we found the left line
 			leftPeakFound = 1;
 		  LED2_Off();
@@ -288,7 +288,7 @@ void evaluatePositionANDTurn(int* leftPeakLoc, int* rightPeakLoc, signed DiffLin
 	}
 	
 
-	if(DiffLine[*rightPeakLoc] < -700){
+	if(DiffLine[*rightPeakLoc] < -600){
 			//means we found the right line
 			rightPeakFound = 1;
 		  LED2_Off();
@@ -352,7 +352,7 @@ void AdjustMotors(){
 	int loopCounter = 0;
 	double helper =0;
 	//double minimumTurnPercent = 1.5625;
-	double minimumTurnPercent = 3.125;
+	double minimumTurnPercent = 2.3625;
 	double ServoRightPercent = 0;
 	double ServoLeftPercent = 0;
 	PrevRightSpeed = RightSpeed;
