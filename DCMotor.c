@@ -11,7 +11,7 @@
 #include "msp.h"
 #include "uart.h"
 #include "TimerA.h"
-
+extern double MaxSpeed;
 
 /**
  * Waits for a delay (in milliseconds)
@@ -65,6 +65,10 @@ void init_servos(uint16_t period){
 }
 
 void MotorsForward(double speed){
+			if(speed>MaxSpeed){
+					speed = MaxSpeed;
+			}
+	
 			reset_PWM();
 			speed = speed*0.01;
 		  TIMER_A0_PWM_DutyCycle(speed,1);
@@ -74,7 +78,9 @@ void MotorsForward(double speed){
 }
 
 void RightMotorForward(double speed){
-			
+			if(speed>MaxSpeed){
+					speed = MaxSpeed;
+			}
 	
 			speed = speed*0.01;
 		  TIMER_A0_PWM_DutyCycle(speed,1);
@@ -83,6 +89,9 @@ void RightMotorForward(double speed){
 }
 
 void LeftMotorForward(double speed){
+			if(speed>MaxSpeed){
+					speed = MaxSpeed;
+			}
 	
 			speed = speed*0.01;
 		  TIMER_A0_PWM_DutyCycle(speed,3);
