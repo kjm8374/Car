@@ -45,7 +45,7 @@ double ForwardCount = 0;
 double ForwardCap = 10;
 double BreakTime = 0;
 double BaseSpeed = 23;
-double MaxSpeed = 40;
+double MaxSpeed = 30;
 int count = 0;
 int stop_val = 0;
 
@@ -382,13 +382,12 @@ void AdjustMotors(){
 	
 	//end of addition
 
-	if (ServoPosition>0.07 && ServoPosition<0.08){
-		
-		RightSpeed = BaseSpeed+5;
-		LeftSpeed = BaseSpeed+5;
-		RightMotorForward(RightSpeed);
-		LeftMotorForward(LeftSpeed);
-	}
+//	if (ServoPosition>0.07 && ServoPosition<0.08){
+//		RightSpeed = BaseSpeed+6.5;
+//		LeftSpeed = BaseSpeed+6.5;
+//		RightMotorForward(RightSpeed);
+//		LeftMotorForward(LeftSpeed);
+//	}
 	
 	//means turning left
 	if(ServoPosition>0.09){
@@ -584,5 +583,3 @@ int max(uint16_t SmoothLine[]){
 //		DiffLine[127] = (SmoothLine[127] - SmoothLine[126]);
 //	
 //}
-
-			
