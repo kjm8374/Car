@@ -383,8 +383,14 @@ void AdjustMotors(){
 	//end of addition
 
 //	if (ServoPosition>0.07 && ServoPosition<0.08){
+<<<<<<< HEAD
 //		RightSpeed = BaseSpeed+6.5;
 //		LeftSpeed = BaseSpeed+6.5;
+=======
+//		
+//		RightSpeed = BaseSpeed+5;
+//		LeftSpeed = BaseSpeed+5;
+>>>>>>> 1a4ce0b725162cc0e348d533a7981e3b68b102ca
 //		RightMotorForward(RightSpeed);
 //		LeftMotorForward(LeftSpeed);
 //	}

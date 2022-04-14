@@ -12,7 +12,10 @@
 #include "uart.h"
 #include "TimerA.h"
 extern double MaxSpeed;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 1a4ce0b725162cc0e348d533a7981e3b68b102ca
 
 /**
  * Waits for a delay (in milliseconds)
@@ -66,6 +69,10 @@ void init_servos(uint16_t period){
 }
 
 void MotorsForward(double speed){
+			if(speed>MaxSpeed){
+					speed = MaxSpeed;
+			}
+	
 			reset_PWM();
 			if(speed>MaxSpeed){
 				speed = MaxSpeed;
@@ -79,8 +86,14 @@ void MotorsForward(double speed){
 
 void RightMotorForward(double speed){
 			if(speed>MaxSpeed){
+<<<<<<< HEAD
 				speed = MaxSpeed;
 			}
+=======
+					speed = MaxSpeed;
+			}
+	
+>>>>>>> 1a4ce0b725162cc0e348d533a7981e3b68b102ca
 			speed = speed*0.01;
 		  TIMER_A0_PWM_DutyCycle(speed,1);
   		TIMER_A0_PWM_DutyCycle(0.0,2);
@@ -89,8 +102,14 @@ void RightMotorForward(double speed){
 
 void LeftMotorForward(double speed){
 			if(speed>MaxSpeed){
+<<<<<<< HEAD
 				speed = MaxSpeed;
 			}
+=======
+					speed = MaxSpeed;
+			}
+	
+>>>>>>> 1a4ce0b725162cc0e348d533a7981e3b68b102ca
 			speed = speed*0.01;
 		  TIMER_A0_PWM_DutyCycle(speed,3);
   		TIMER_A0_PWM_DutyCycle(0.0,4);
