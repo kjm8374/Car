@@ -4,6 +4,7 @@
 #include "Common.h"
 #include <stdint.h>
 
+extern double MaxSpeed;
 void reset_PWM(void);
 void delay(int del);
 void init_motors(uint16_t period);
